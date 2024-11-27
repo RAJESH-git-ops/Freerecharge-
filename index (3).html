@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recharge Portal</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #eef2f3, #8e9eab);
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 60px auto;
+            background: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-10px);
+            animation: slideDown 0.5s ease-out forwards;
+        }
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #007bff;
+            font-weight: bold;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .plans {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+        .plans h4 {
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Recharge Portal</h2>
+        <form id="rechargeForm">
+            <!-- Phone Number -->
+            <div class="form-group">
+                <label for="phone">Enter Phone Number:</label>
+                <input type="text" id="phone" name="phone" placeholder="Enter your phone number" required>
+            </div>
+            <!-- Company Selection -->
+            <div class="form-group">
+                <label for="company">Select Company:</label>
+                <select id="company" name="company" required onchange="loadPlans()">
+                    <option value="">--Select Company--</option>
+                    <option value="jio">Jio</option>
+                    <option value="airtel">Airtel</option>
+                    <option value="vi">Vodafone Idea</option>
+                    <option value="bsnl">BSNL</option>
+                </select>
+            </div>
+            <!-- Plan Selection -->
+            <div class="form-group" id="planSelectGroup" style="display: none;">
+                <label for="plan">Select Plan:</label>
+                <select id="plan" name="plan" required>
+                    <option value="">--Select Plan--</option>
+                </select>
+            </div>
+            <button type="button" onclick="submitRecharge()">Recharge Now</button>
+        </form>
+    </div>
+
+    <script>
+        // Recharge Plans for Operators
+        const rechargePlans = {
+            jio: [
+                { price: 199, data: "1.5GB/day", validity: "28 days", benefits: "Unlimited calls, 100 SMS/day" },
+                { price: 299, data: "2GB/day", validity: "28 days", benefits: "Unlimited calls, 100 SMS/day" },
+                { price: 555, data: "1.5GB/day", validity: "84 days", benefits: "Unlimited calls, 100 SMS/day" },
+                { price: 666, data: "2GB/day", validity: "56 days", benefits: "OTT Apps Access" }
+            ],
+            airtel: [
+                { price: 239, data: "1.5GB/day", validity: "28 days", benefits: "Unlimited calls, 100 SMS/day" },
+                { price: 299, data: "2GB/day", validity: "28 days", benefits: "Unlimited calls, Amazon Prime Access" },
+                { price: 549, data: "2GB/day", validity: "56 days", benefits: "Unlimited calls, 100 SMS/day" },
+                { price: 999, data: "3GB/day", validity: "84 days", benefits: "OTT + Unlimited Calls" }
+            ],
+            vi: [
+                { price: 249, data: "1.5GB/day", validity: "28 days", benefits: "Unlimited calls, 100 SMS/day" },
+                { price: 399, data: "2GB/day", validity: "42 days", benefits: "Binge Night + Weekend Rollovers" },
+                { price: 479, data: "1.5GB/day", validity: "56 days", benefits: "Unlimited calls, 100 SMS/day" },
+                { price: 701, data: "2GB/day", validity: "84 days", benefits: "OTT & Music" }
+            ],
+            bsnl: [
+                { price: 187, data: "2GB/day", validity: "28 days", benefits: "Unlimited calls, 100 SMS/day" },
+                { price: 247, data: "3GB/day", validity: "30 days", benefits: "Unlimited calls, 100 SMS/day" },
+                { price: 447, data: "3GB/day", validity: "60 days", benefits: "Unlimited calls, 100 SMS/day" },
+                { price: 797, data: "3GB/day", validity: "90 days", benefits: "Extended validity" }
+            ]
+        };
+
+        // Function to Load Plans Based on Selected Company
+        function loadPlans() {
+            const company = document.getElementById('company').value;
+            const planSelectGroup = document.getElementById('planSelectGroup');
+            const planSelect = document.getElementById('plan');
+
+            planSelect.innerHTML = '<option value="">--Select Plan--</option>'; // Clear existing plans
+            if (company && rechargePlans[company]) {
+                rechargePlans[company].forEach(plan => {
+                    const option = document.createElement('option');
+                    option.value = `₹${plan.price} - ${plan.data}, ${plan.validity}, ${plan.benefits}`;
+                    option.textContent = `₹${plan.price} - ${plan.validity} (${plan.data})`;
+                    planSelect.appendChild(option);
+                });
+                planSelectGroup.style.display = 'block'; // Show the dropdown
+            } else {
+                planSelectGroup.style.display = 'none';
+            }
+        }
+
+        // Function to Submit Recharge
+        function submitRecharge() {
+            const phone = document.getElementById('phone').value;
+            const company = document.getElementById('company').value;
+            const plan = document.getElementById('plan').value;
+
+            if (!phone || !company || !plan) {
+                alert("Please fill all fields!");
+                return;
+            }
+
+            alert(`Recharge Submitted for ${phone}.\nPlan Details: ${plan}.`);
+        }
+    </script>
+</body>
+</html>
